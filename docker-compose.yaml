@@ -1,0 +1,13 @@
+version: '3.8'
+
+name: nestjs-redis
+
+services:
+  redis:
+    build:
+      context: dockerfiles/redis
+    ports:
+      - 6380:6379
+    volumes:
+      - ./.docker/redis/data:/data
+    restart: unless-stopped
