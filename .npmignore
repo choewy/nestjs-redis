@@ -1,0 +1,7 @@
+*
+
+!dist/**
+!package.json
+!LICENSE
+
+dist/tsconfig.tsbuildinfo
