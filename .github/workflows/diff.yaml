@@ -8,7 +8,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: |
-          previous_commit=$(git rev-parse HEAD~1)
+          revious_commit=$(git log --format=%H -n 2 | tail -n 1)
           previous=$(git show $previous_commit:package.json | grep '"version"' | awk -F '"' '{print $4}')
           current=$(git show HEAD:package.json | grep '"version"' | awk -F '"' '{print $4}')
           echo "$previous_commit $previous $current"
