@@ -1,14 +1,14 @@
 import { DynamicModule, Module, Provider, Type } from '@nestjs/common';
 import { EventEmitterModule, EventEmitter2 } from '@nestjs/event-emitter';
-import { Redis } from 'ioredis';
+import { Redis, RedisOptions } from 'ioredis';
 
-import { RedisModuleOptions } from './interfaces';
+import { RedisModuleAsyncOptions, RedisModuleOptions, RedisPubOptions, RedisSubOptions } from './interfaces';
 import { RedisPub } from './redis.pub';
 import { RedisSub } from './redis.sub';
 
 @Module({})
 export class RedisModule {
-  static register({ global, pub, sub, ...redisOptions }: RedisModuleOptions): DynamicModule {
+  private static createProviders(redisOptions: RedisOptions, pubOptions?: RedisPubOptions, subOptions?: RedisSubOptions) {
     const providers: Array<Type<any> | Provider> = [
       {
         provide: Redis,
@@ -18,37 +18,44 @@ export class RedisModule {
       },
     ];
 
-    if (pub?.use) {
+    if (pubOptions?.use) {
       providers.push({
         inject: [Redis],
         provide: RedisPub,
         useFactory(redis: Redis) {
-          return new RedisPub(redis.duplicate());
+          return new RedisPub(redis.duplicate(), pubOptions);
         },
       });
     }
 
-    if (sub?.use) {
+    if (subOptions?.use) {
       providers.push({
-        inject: [EventEmitter2, Redis],
+        inject: [Redis, EventEmitter2],
         provide: RedisSub,
-        useFactory(eventEmitter: EventEmitter2, redis: Redis) {
-          return new RedisSub(eventEmitter, redis.duplicate(), sub);
+        useFactory(redis: Redis, eventEmitter: EventEmitter2) {
+          return new RedisSub(redis.duplicate(), subOptions, eventEmitter);
         },
       });
     }
 
-    const dynamicModule: DynamicModule = {
+    return providers;
+  }
+
+  private static createDynamicModule(providers: Array<Provider | Type<any>>, global?: boolean): DynamicModule {
+    return {
       global,
-      imports: [EventEmitterModule.forRoot({ global: false })],
       module: RedisModule,
+      imports: [EventEmitterModule.forRoot({ global: false })],
+      providers,
+      exports: providers,
     };
+  }
 
-    if (providers.length > 0) {
-      dynamicModule.providers = providers;
-      dynamicModule.exports = providers;
-    }
+  static register({ global, pub, sub, ...redisOptions }: RedisModuleOptions): DynamicModule {
+    return this.createDynamicModule(this.createProviders(redisOptions, pub, sub), global);
+  }
 
-    return dynamicModule;
+  static async registerAsync(moduleAsyncOptions: RedisModuleAsyncOptions) {
+    return this.register(await moduleAsyncOptions.useFactory(...moduleAsyncOptions.inject));
   }
 }
