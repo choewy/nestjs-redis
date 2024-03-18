@@ -25,7 +25,7 @@ jobs:
           echo "previous=v$previous" >> $GITHUB_OUTPUT
           echo "current=v$current" >> $GITHUB_OUTPUT
 
-      - if: steps.version.previous != steps.version.current
+      - if: steps.version.outputs.previous != steps.version.outputs.current
         run: |
-          git tag ${{ steps.version.current }}
-          git push origin ${{ steps.version.current }}
+          git tag ${{ steps.version.outputs.current }}
+          git push origin ${{ steps.version.outputs.current }}
