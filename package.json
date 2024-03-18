@@ -1,6 +1,6 @@
 {
   "name": "@choewy/nestjs-redis",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "NestJS Redis",
   "main": "dist/libs/index.js",
   "license": "MIT",
