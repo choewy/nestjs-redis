@@ -1,0 +1,19 @@
+name: version
+
+on:
+  push:
+    branches: [master]
+    paths: [package.json]
+
+jobs:
+  tags:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - id: version
+        run: |
+          git diff --quiet HEAD^ HEAD package.json || echo "::set-output name=changed::true"
+          echo ::set-output name=current::$(node -pe "require('./package.json').version")
+      - if: steps.version.changed == 'true'
+        run: |
+          git push --follows-tags
