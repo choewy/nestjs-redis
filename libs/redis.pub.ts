@@ -1,36 +1,42 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Redis } from 'ioredis';
 
+import { RedisPubOptions } from './interfaces';
+
 @Injectable()
 export class RedisPub {
   private readonly logger = new Logger(RedisPub.name);
 
-  constructor(private readonly redis: Redis) {}
+  constructor(
+    private readonly redis: Redis,
+    private readonly pubOptions: RedisPubOptions,
+  ) {}
 
-  async publish(channel: string | Buffer, message: string | Buffer) {
+  private logging(channel: string, sendMessage: string | object, subscribers: number) {
+    if (this.pubOptions.logging === false) {
+      return;
+    }
+
+    this.logger.debug(JSON.stringify({ subscribers, channel, sendMessage }, null, 2));
+  }
+
+  async publish(channel: string | Buffer, message: string | Buffer | object) {
+    let targetChannel = channel as string;
+    let targetMessage = message as string;
+
     if (channel instanceof Buffer) {
-      channel = channel.toString('utf-8');
+      targetChannel = channel.toString('utf-8');
     }
 
     if (message instanceof Buffer) {
-      message = message.toString('utf-8');
+      targetMessage = message.toString('utf-8');
     }
 
-    const subscribers = await this.redis.publish(channel, message);
+    if (message instanceof Object) {
+      targetMessage = JSON.stringify(message);
+    }
 
-    this.logger.debug(
-      JSON.stringify(
-        {
-          message: 'succeed publish message',
-          subscribers,
-          target: {
-            channel,
-            message,
-          },
-        },
-        null,
-        2,
-      ),
-    );
+    const subscribers = await this.redis.publish(targetChannel, targetMessage);
+    this.logging(targetChannel, targetMessage, subscribers);
   }
 }

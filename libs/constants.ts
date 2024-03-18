@@ -1,1 +1,1 @@
-export const createRedisEvent = (channel: string) => ['redis', 'sub', channel].join('.');
+export const createRedisPubEvent = (channel: string) => ['redis', 'pub', channel].join('.');
