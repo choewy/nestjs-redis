@@ -30,8 +30,7 @@ jobs:
     if: needs.diff.outputs.previous != needs.diff.outputs.current
     steps:
       - uses: actions/checkout@v4
-      - name: create tag
-        id: tag
+      - id: tag
         run: |
           tag=${{ needs.diff.outputs.current }}
           git tag $tag
@@ -43,8 +42,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
-      - name: create release
-        uses: actions/create-release@v1
+      - uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -58,12 +56,11 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
-          registry-url: https://npm.pkg.github.com/
-      - name: publish to npm
-        env:
+          registry-url: https://registry.npmjs.org
+      - env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           npm ci
