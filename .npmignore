@@ -6,4 +6,4 @@
 
 dist/tsconfig.tsbuildinfo
 dist/libs/app
-dist/libs/main
+dist/libs/main*
