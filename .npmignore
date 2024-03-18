@@ -3,5 +3,7 @@
 !dist/**
 !package.json
 !LICENSE
-dist/libs/app
+
 dist/tsconfig.tsbuildinfo
+dist/libs/app
+dist/libs/main

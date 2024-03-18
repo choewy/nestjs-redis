@@ -25,7 +25,7 @@
     "prepare": "husky",
     "lint": "eslint \"{libs,test}/**/*.ts\" --fix",
     "start": "nodemon -w libs -e ts --exec ts-node libs/main.ts",
-    "build": "rm -rf dist && tsc && rm dist/libs/main.*",
+    "build": "rm -rf dist && tsc",
     "docker": "docker-compose up --build -d"
   },
   "dependencies": {
