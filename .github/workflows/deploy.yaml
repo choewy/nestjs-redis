@@ -9,7 +9,8 @@ jobs:
   diff:
     runs-on: ubuntu-22.04
     outputs:
-      version: ${{ steps.version.outputs.current }}
+      previous: ${{ steps.version.outputs.previous }}
+      current: ${{ steps.version.outputs.current }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -25,14 +26,14 @@ jobs:
     needs: diff
     runs-on: ubuntu-22.04
     outputs:
-      tag: ${{ steps.tag.outputs }}
-    if: needs.diff.outputs.version.previous != needs.diff.outputs.version.current
+      tag: ${{ steps.tag.outputs.tag }}
+    if: needs.diff.outputs.previous != needs.diff.outputs.current
     steps:
       - uses: actions/checkout@v4
       - name: create tag
         id: tag
         run: |
-          tag=${{ needs.diff.outputs.version.current }}
+          tag=${{ needs.diff.outputs.current }}
           git tag $tag
           git push origin $tag
           echo "tag=$tag" >> $GITHUB_OUTPUT
