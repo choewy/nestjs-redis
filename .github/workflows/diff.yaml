@@ -7,9 +7,11 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
       - run: |
           previous_commit=$(git log --format=%H -n 2 | tail -n 1)
-          previous=$(git show $previous_commit:package.json | grep '"version"' | awk -F '"' '{print $4}')
+          previous=$(git show $HEAD^:package.json | grep '"version"' | awk -F '"' '{print $4}')
           current_commit=$(git log --format=%H -n 1)
           current=$(git show HEAD:package.json | grep '"version"' | awk -F '"' '{print $4}')
           echo "$previous_commit $current_commit $previous $current"
