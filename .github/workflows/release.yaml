@@ -5,23 +5,7 @@ on:
     tags: [v*]
 
 jobs:
-  change-version:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 20
-      - run: |
-          git config --global user.email "choewy32@gmail.com"
-          git config --global user.name "GitHub Actions"
-          npm version $tag_name
-          git push origin master
-        env:
-          tag_name: ${{ github.ref_name }}
-
-  create-release:
-    needs: change-version
+  release:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
