@@ -15,8 +15,11 @@ jobs:
           node-version: 20
       - id: version
         run: |
-          git diff --quiet HEAD^ HEAD package.json || echo "::set-output name=changed::true"
-          echo ::set-output name=current::$(node -pe "require('./package.json').version")
-      - if: steps.version.changed == 'true'
+          previous=$(git show HEAD^:package.json | grep '"version"' | awk -F '"' '{print $4}')
+          current=$(git show HEAD:package.json | grep '"version"' | awk -F '"' '{print $4}')
+          echo "::set-output name=previous::v$previous"
+          echo ""::set-output name=current::v$current""
+      - if: steps.version.previous != steps.version.current
         run: |
-          git push --follows-tags
+          git tag ${{ steps.version.current }}
+          git push origin ${{ steps.version.current }}
