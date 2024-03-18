@@ -1,0 +1,70 @@
+name: publish
+
+on:
+  push:
+    branches: [master]
+    paths: ['package.json']
+
+jobs:
+  diff:
+    runs-on: ubuntu-22.04
+    outputs:
+      version: ${{ steps.version.outputs }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - id: version
+        run: |
+          previous=$(git show HEAD^:package.json | grep '"version"' | awk -F '"' '{print $4}')
+          current=$(git show HEAD:package.json | grep '"version"' | awk -F '"' '{print $4}')
+          echo "previous=v$previous" >> $GITHUB_OUTPUT
+          echo "current=v$current" >> $GITHUB_OUTPUT
+
+  create-tag:
+    needs: diff
+    runs-on: ubuntu-22.04
+    outputs:
+      tag: ${{ steps.tag.outputs }}
+    if: needs.diff.outputs.version.previous != needs.diff.outputs.version.current
+    steps:
+      - uses: actions/checkout@v4
+      - name: create tag
+        id: tag
+        run: |
+          tag=${{ needs.diff.outputs.version.current }}
+          git tag $tag
+          git push origin $tag
+          echo "tag=$tag" >> $GITHUB_OUTPUT
+
+  create-release:
+    needs: create-tag
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: create release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ needs.create-tag.outputs.tag }}
+          release_name: ${{ needs.create-tag.outputs.tag }}
+          draft: false
+          prerelease: false
+
+  npm-publish:
+    needs: create-release
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          registry-url: https://npm.pkg.github.com/
+      - name: publish to npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          npm ci
+          npm run build
+          npm publish
