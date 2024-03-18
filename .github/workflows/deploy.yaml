@@ -9,7 +9,7 @@ jobs:
   diff:
     runs-on: ubuntu-22.04
     outputs:
-      version: ${{ steps.version.outputs }}
+      version: ${{ steps.version.outputs.current }}
     steps:
       - uses: actions/checkout@v4
         with:
