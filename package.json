@@ -24,9 +24,12 @@
   "scripts": {
     "prepare": "husky",
     "lint": "eslint \"{libs,test}/**/*.ts\" --fix",
+    "docker": "docker-compose up --build -d",
     "start": "nodemon -w libs -e ts --exec ts-node libs/main.ts",
     "build": "rm -rf dist && tsc",
-    "docker": "docker-compose up --build -d"
+    "vesrion:patch": "npm version patch && git push origin master",
+    "vesrion:minor": "npm version minor && git push origin master",
+    "vesrion:major": "npm version major && git push origin master"
   },
   "dependencies": {
     "@nestjs/common": "^10.3.3",
