@@ -18,7 +18,7 @@ jobs:
           npm version $tag_name
           git push origin master
         env:
-          tag_name: github.ref_name
+          tag_name: ${{ github.ref_name }}
 
   create-release:
     needs: change-version
