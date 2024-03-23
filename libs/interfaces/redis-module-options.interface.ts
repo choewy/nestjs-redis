@@ -5,7 +5,6 @@ import { RedisPubOptions } from './redis-pub-options.interface';
 import { RedisSubOptions } from './redis-sub-options.interface';
 
 export interface RedisModuleOptions extends RedisOptions {
-  global?: boolean;
   pub?: RedisPubOptions;
   sub?: RedisSubOptions;
 }

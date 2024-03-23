@@ -38,6 +38,7 @@
     "reflect-metadata": "^0.2.1"
   },
   "devDependencies": {
+    "@nestjs/config": "^3.2.0",
     "@nestjs/core": "^10.3.3",
     "@nestjs/platform-express": "^10.3.3",
     "@typescript-eslint/eslint-plugin": "^7.2.0",

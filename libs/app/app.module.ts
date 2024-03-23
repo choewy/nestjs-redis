@@ -1,5 +1,7 @@
 import { Module, OnApplicationBootstrap } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
+import { REDIS_CONFIG, RedisConfig } from './redis.config';
 import { OnRedisPub, RedisPubPayloadParam } from '../decorators';
 import { RedisPubPayload } from '../implements';
 import { RedisModule } from '../redis.module';
@@ -7,12 +9,19 @@ import { RedisPub } from '../redis.pub';
 
 @Module({
   imports: [
-    RedisModule.register({
-      host: 'localhost',
-      port: 6380,
-      db: 0,
-      pub: { use: true },
-      sub: { use: true, channels: ['welcome'] },
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [RedisConfig],
+    }),
+    RedisModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory(configService: ConfigService) {
+        return {
+          ...configService.get(REDIS_CONFIG),
+          pub: { use: true },
+          sub: { use: true, channels: ['welcome'] },
+        };
+      },
     }),
   ],
 })
